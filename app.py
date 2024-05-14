@@ -11,15 +11,20 @@ def extract_text_from_pdf(uploaded_file):
 
 # Function to parse text and answer queries
 def parse_and_answer(text, query):
-    # Your document parsing and query answering logic here
-    # For simplicity, let's assume the document contains FAQ-style questions and answers
-    # You can replace this with your own logic or NLP model
-    faqs = text.split("\n\n")  # Assuming each FAQ is separated by double newline
+    faqs = text.split("\n\n")  # Split text into FAQs assuming each FAQ is separated by double newline
     for faq in faqs:
-        question,answer = faq.split("\n", 1)# Assuming question and answer are separated by single newline
-        if query.lower() in question.lower():
-            return answer
+        parts = faq.split("\n", 1)  # Split FAQ into question and answer assuming they are separated by a newline
+        if len(parts) == 2:  # Ensure both question and answer are present
+            question, answer = parts
+            if query.lower() in question.lower():
+                return answer.strip()  # Strip leading/trailing whitespaces from answer
+        elif len(parts) == 1:  # Handle cases where question and answer are not separated by a newline
+            if query.lower() in faq.lower():
+                return "FAQ found but answer format is not recognized. Please ensure each FAQ is formatted as 'Question\\nAnswer'."
+        # Else: Skip FAQ if it doesn't have both question and answer or doesn't match query
+
     return "Sorry, I couldn't find an answer to your query."
+
 
 # Streamlit UI
 st.title("Document Parser and Query App")
