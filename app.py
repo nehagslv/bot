@@ -16,7 +16,8 @@ def parse_and_answer(text, query):
     # You can replace this with your own logic or NLP model
     faqs = text.split("\n\n")  # Assuming each FAQ is separated by double newline
     for faq in faqs:
-        question, answer = faq.split("\n", 1)  # Assuming question and answer are separated by single newline
+        question = faq.split("\n", 1) 
+        answer = faq.split("\n", 1)# Assuming question and answer are separated by single newline
         if query.lower() in question.lower():
             return answer
     return "Sorry, I couldn't find an answer to your query."
