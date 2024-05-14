@@ -8,10 +8,10 @@ faiss-cpu
 tiktoken
 ctransformers
 huggingface-hub
-pypdf2
+pypdf
 python-dotenv
 replicate
 docx2txt
-
+PyMuPDF
 
 
