@@ -4,14 +4,13 @@ import os
 from transformers import AutoTokenizer
 
 # Set assistant icon to Snowflake logo
-icons = {"assistant": "./Snowflake_Logomark_blue.svg", "user": "⛷️"}
+icons = {"assistant": "Snowflake_Logomark_blue.svg", "user": "⛷️"}
 
 # App title
 st.set_page_config(page_title="Snowflake Arctic")
 replicate_api = None
 
 # Replicate Credentials
-
 with st.sidebar:
     st.title('Snowflake Arctic')
     if 'REPLICATE_API_TOKEN' in st.secrets:
@@ -26,7 +25,6 @@ with st.sidebar:
     st.subheader("Adjust model parameters")
     temperature = st.sidebar.slider('temperature', min_value=0.01, max_value=5.0, value=0.3, step=0.01)
     top_p = st.sidebar.slider('top_p', min_value=0.01, max_value=1.0, value=0.9, step=0.01)
-
 
 # Store LLM-generated responses
 if "messages" not in st.session_state.keys():
@@ -90,24 +88,9 @@ if prompt := st.chat_input(disabled=not replicate_api):
 
 # Generate a new response if last message is not from assistant
 if st.session_state.messages[-1]["role"] != "assistant":
-    with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
+    with st.chat_message("assistant", avatar="Snowflake_Logomark_blue.svg"):
         # Code snippet to generate Arctic response
-        for event in replicate.stream(
-            "snowflake/snowflake-arctic-instruct",
-            input={
-                "top_k": 50,
-                "top_p": 0.9,
-                "prompt": "Write fizz buzz in SQL",
-                "temperature": 0.2,
-                "max_new_tokens": 512,
-                "min_new_tokens": 0,
-                "stop_sequences": "",
-                "prompt_template": "system\nYou're a helpful assistant\nuser\n{prompt}\n\nassistant\n",
-                "presence_penalty": 1.15,
-                "frequency_penalty": 0.2
-            },
-        ):
-            response = str(event)
+        response = generate_arctic_response()
         full_response = st.write_stream(response)
-        message = {"role": "assistant", "content": full_response}
-        st.session_state.messages.append(message)
+    message = {"role": "assistant", "content": full_response}
+    st.session_state.messages.append(message)
