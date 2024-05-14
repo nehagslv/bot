@@ -68,13 +68,26 @@ def main():
         text = []
         for file in uploaded_files:
             file_extension = os.path.splitext(file.name)[1]
-            # Processing file types and loading text
+            if file_extension == '.txt':
+                text.append(file.read().decode("utf-8"))  # Assuming text files are encoded in UTF-8
+            elif file_extension == '.pdf':
+                # Code for extracting text from PDF files
+                pass
+            elif file_extension == '.docx':
+                # Code for extracting text from DOCX files
+                pass
+            # Add handling for other file types if necessary
 
+        if not text:
+            st.error("No text found in uploaded files. Aborting.")
+            st.stop()
+
+        # Split text into chunks
         text_splitter = CharacterTextSplitter(
             separator="\n", chunk_size=1000, chunk_overlap=100, length_function=len)
         text_chunks = text_splitter.split_documents(text)
 
-        # Debug output to check input data
+        # Debug output to check text chunks
         st.write("Number of text chunks:", len(text_chunks))
         st.write("Example text chunk:", text_chunks[0] if text_chunks else "No text chunks")
 
