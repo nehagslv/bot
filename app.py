@@ -15,12 +15,12 @@ with st.sidebar:
     if 'REPLICATE_API_TOKEN' in st.secrets:
         st.success('API token loaded_if!', icon='✅')
         replicate_api = st.secrets['REPLICATE_API_TOKEN']
-        os.environ['REPLICATE_API_TOKEN'] = "replicate/llama-7b:ac808388e2e9d8ed35a5bf2eaa7d83f0ad53f9e3df31a42e4eb0a0c3249b3165",
+        #os.environ['REPLICATE_API_TOKEN'] = "replicate/llama-7b:ac808388e2e9d8ed35a5bf2eaa7d83f0ad53f9e3df31a42e4eb0a0c3249b3165",
     
     else:
         st.success('API token loaded_else!', icon='✅')
 
-    #os.environ['REPLICATE_API_TOKEN'] = replicate_api
+    os.environ['REPLICATE_API_TOKEN'] = replicate_api
     st.subheader("Adjust model parameters")
     temperature = st.sidebar.slider('temperature', min_value=0.01, max_value=5.0, value=0.3, step=0.01)
     top_p = st.sidebar.slider('top_p', min_value=0.01, max_value=1.0, value=0.9, step=0.01)
