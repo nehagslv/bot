@@ -13,11 +13,11 @@ replicate_api = None
 with st.sidebar:
     st.title('Snowflake Arctic')
     if 'REPLICATE_API_TOKEN' in st.secrets:
-        st.success('API token loaded!', icon='✅')
+        st.success('API token loaded_if!', icon='✅')
         replicate_api = st.secrets['REPLICATE_API_TOKEN']
     
-    #else:
-        #st.success('API token loaded!', icon='✅')
+    else:
+        st.success('API token loaded_else!', icon='✅')
 
     os.environ['REPLICATE_API_TOKEN'] = replicate_api
     st.subheader("Adjust model parameters")
