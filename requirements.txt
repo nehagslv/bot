@@ -12,6 +12,6 @@ pypdf
 python-dotenv
 replicate
 docx2txt
-pypdf2
+PyPDF2
 openai
 dotenv
