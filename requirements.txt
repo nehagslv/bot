@@ -17,3 +17,4 @@ pypdf4
 requests
 replicate
 spacy
+os
