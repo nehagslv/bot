@@ -2,6 +2,7 @@ import streamlit as st
 import replicate
 import os
 from transformers import AutoTokenizer
+from dotenv import load_dotenv
 
 load_dotenv()
 
