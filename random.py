@@ -3,9 +3,6 @@ import replicate
 import os
 from transformers import AutoTokenizer
 
-# Set assistant icon to Snowflake logo
-icons = {"assistant": "Snowflake_Logomark_blue.svg", "user": "⛷️"}
-
 # App title
 st.set_page_config(page_title="Snowflake Arctic")
 replicate_api = None
@@ -32,8 +29,10 @@ if "messages" not in st.session_state.keys():
 
 # Display or clear chat messages
 for message in st.session_state.messages:
-    with st.chat_message(message["role"], avatar=icons[message["role"]]):
-        st.write(message["content"])
+    if message["role"] == "assistant":
+        st.markdown(f"**Assistant:** {message['content']}")
+    else:
+        st.markdown(f"**User:** {message['content']}")
 
 def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "Hi. I'm Arctic, a new, efficient, intelligent, and truly open language model created by Snowflake AI Research. Ask me anything."}]
@@ -81,16 +80,13 @@ def generate_arctic_response():
         yield str(event)
 
 # User-provided prompt
-if prompt := st.chat_input(disabled=not replicate_api):
+if prompt := st.text_input("Enter your message", key="user_input", disabled=not replicate_api):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user", avatar="⛷️"):
-        st.write(prompt)
 
 # Generate a new response if last message is not from assistant
 if st.session_state.messages[-1]["role"] != "assistant":
-    with st.chat_message("assistant", avatar="Snowflake_Logomark_blue.svg"):
-        # Code snippet to generate Arctic response
-        response = generate_arctic_response()
-        full_response = st.write_stream(response)
+    # Code snippet to generate Arctic response
+    response = generate_arctic_response()
+    full_response = "\n".join(response)  # Join the lines of response
     message = {"role": "assistant", "content": full_response}
     st.session_state.messages.append(message)
