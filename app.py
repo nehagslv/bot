@@ -1,29 +1,30 @@
 import streamlit as st
-import requests
-def query_documents(query):
-    # Make HTTP request to Snowflake Arctic API
-    response = requests.post("https://snowflake-arctic-api-url/query", json={"query": query})
-    if response.status_code == 200:
-        return response.json()
+import PyPDF4
+def extract_text(file):
+    if file.name.endswith('.pdf'):
+        pdf_reader = PyPDF4.PdfFileReader(file)
+        text = ''
+        for page_num in range(pdf_reader.numPages):
+            text += pdf_reader.getPage(page_num).extractText()
+        return text
+    elif file.name.endswith('.txt'):
+        return file.getvalue().decode('utf-8')
     else:
         return None
-st.title("Document Parser App")
-
-# Add file uploader
-uploaded_file = st.file_uploader("Upload a document", type=["txt", "pdf"])
-
+def chatbot(input_text):
+    # Your chatbot logic here
+    response = "Hello! How can I assist you today?"
+    return response
+st.title("Document Parser")
+uploaded_file = st.file_uploader("Upload a PDF or text file", type=["pdf", "txt"])
 if uploaded_file is not None:
-    # Process the document
-    document_text = uploaded_file.read()
+    document_text = extract_text(uploaded_file)
+    if document_text:
+        st.write("### Uploaded Document Content:")
+    else:
+        st.write("Invalid file format. Please upload a PDF or text file.")
+        user_input = st.text_input("You:", "")
+if user_input:
+    bot_response = chatbot(user_input)
+    st.text_area("Bot:", bot_response, height=1000)
 
-    # Display the document content
-    st.write("### Document Content:")
-
-    # Perform a query using Snowflake Arctic model
-    query = f"SELECT * FROM your_table WHERE document_text LIKE '%{search_term}%'"
-    results = query_documents(query)
-
-    # Display query results
-    st.write("### Query Results:")
-    for result in results:
-        st.write(result)
