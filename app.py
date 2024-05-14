@@ -29,7 +29,7 @@ def process_text(text):
     def main():
     st.title("Chat with your PDF 💬")
     
-    pdf = st.file_uploader('Upload your PDF Document', type='pdf')
+    pdf = st.file_uploader('Upload your PDF', type='pdf')
     
     if pdf is not None:
         pdf_reader = PdfReader(pdf)
@@ -41,7 +41,7 @@ def process_text(text):
         # Create the knowledge base object
         knowledgeBase = process_text(text)
         
-        query = st.text_input('Ask a question to the PDF')
+        query = st.text_input('Ask a question to the bot')
         cancel_button = st.button('Cancel')
         
         if cancel_button:
