@@ -15,16 +15,13 @@ import os
 from dotenv import load_dotenv
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM
 from transformers import LlamaForCausalLM, LlamaTokenizer
 from deepspeed.linear.config import QuantizationConfig
 import tempfile
 import replicate
 
-
-
 load_dotenv()
-
-
 def initialize_session_state():
     if 'history' not in st.session_state:
         st.session_state['history'] = []
