@@ -1,29 +1,30 @@
 import streamlit as st
-
-# Streamlit UI
+import requests
+def query_documents(query):
+    # Make HTTP request to Snowflake Arctic API
+    response = requests.post("https://snowflake-arctic-api-url/query", json={"query": query})
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return None
 st.title("Document Parser App")
 
-# Add search input
-search_query = st.text_input("Enter your search query:", "")
+# Add file uploader
+uploaded_file = st.file_uploader("Upload a document", type=["txt", "pdf"])
 
-# Function to query documents from Snowflake Arctic model
-def query_documents(query):
-    # Your code to query the Snowflake Arctic model goes here
-    # Example:
-    results = []
-    # Execute the query and fetch results
-    return results
+if uploaded_file is not None:
+    # Process the document
+    document_text = uploaded_file.read()
 
-# Execute query and display results
-if st.button("Search"):
-    if search_query:
-        results = query_documents(search_query)
-        if results:
-            st.write("### Search Results:")
-            for result in results:
-                st.write(result)
-        else:
-            st.write("No results found.")
-    else:
-        st.write("Please enter a search query.")
-        st.write(answer)
+    # Display the document content
+    st.write("### Document Content:")
+    st.write(document_text)
+
+    # Perform a query using Snowflake Arctic model
+    query = f"SELECT * FROM your_table WHERE document_text LIKE '%{search_term}%'"
+    results = query_documents(query)
+
+    # Display query results
+    st.write("### Query Results:")
+    for result in results:
+        st.write(result)
