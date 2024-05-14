@@ -3,6 +3,8 @@ import replicate
 import os
 from transformers import AutoTokenizer
 
+load_dotenv()
+
 # Set assistant icon to Snowflake logo
 icons = {"assistant": "./Snowflake_Logomark_blue.svg", "user": "⛷️"}
 
