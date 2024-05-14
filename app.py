@@ -26,6 +26,6 @@ if uploaded_file is not None:
         user_input = st.text_input("You:", "")
 if user_input != "":
     bot_response = chatbot(user_input)
-    st.text_area("Bot:", bot_response, height=1000)
+    st.text_area("Bot:", bot_response, height=100)
 
 
