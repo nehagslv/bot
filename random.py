@@ -58,29 +58,33 @@ def get_num_tokens(prompt):
 
 # Function for generating Snowflake Arctic response
 def generate_arctic_response():
-    prompt = []
-    for dict_message in st.session_state.messages:
-        if dict_message["role"] == "user":
-            prompt.append("user\n" + dict_message["content"] + "")
-        else:
-            prompt.append("assistant\n" + dict_message["content"] + "")
-    
-    prompt.append("assistant")
-    prompt.append("")
-    prompt_str = "\n".join(prompt)
-    
-    if get_num_tokens(prompt_str) >= 3072:
-        st.error("Conversation length too long. Please keep it under 3072 tokens.")
-        st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
-        st.stop()
+    try:
+        prompt = []
+        for dict_message in st.session_state.messages:
+            if dict_message["role"] == "user":
+                prompt.append("user\n" + dict_message["content"] + "")
+            else:
+                prompt.append("assistant\n" + dict_message["content"] + "")
 
-    for event in replicate.stream("snowflake/snowflake-arctic-instruct",
-                           input={"prompt": prompt_str,
-                                  "prompt_template": r"{prompt}",
-                                  "temperature": temperature,
-                                  "top_p": top_p,
-                                  }):
-        yield str(event)
+        prompt.append("assistant")
+        prompt.append("")
+        prompt_str = "\n".join(prompt)
+
+        if get_num_tokens(prompt_str) >= 3072:
+            st.error("Conversation length too long. Please keep it under 3072 tokens.")
+            st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
+            st.stop()
+
+        for event in replicate.stream("snowflake/snowflake-arctic-instruct",
+                                      input={"prompt": prompt_str,
+                                             "prompt_template": r"{prompt}",
+                                             "temperature": temperature,
+                                             "top_p": top_p,
+                                             }):
+            yield str(event)
+    except replicate.exceptions.ReplicateError as e:
+        st.error("An error occurred while generating the response. Please try again later.")
+        st.error(f"Error details: {str(e)}")
 
 # User-provided prompt
 if prompt := st.text_input("Enter your message", key="user_input", disabled=not replicate_api):
