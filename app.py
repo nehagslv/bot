@@ -23,14 +23,15 @@ if uploaded_file is not None:
         st.write("### Uploaded Document Content:")
     else:
         st.write("Invalid file format. Please upload a PDF or text file.")
-        user_input = st.text_input("You:", "")
-user_input = st.text_input("You:", "")
+        user_input = st.text_input("You:")
+user_input = st.text_input("You:")
 
 if user_input is not None:
     # Check if user_input is not empty and not just whitespace
     if user_input.strip() != "":
         bot_response = chatbot(user_input)
         st.text_area("Bot:", bot_response, height=100)
+        st.write(bot_response)
 
 
 
