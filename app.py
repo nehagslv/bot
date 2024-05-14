@@ -13,7 +13,7 @@ replicate_api = None
 with st.sidebar:
     st.title('Snowflake Arctic')
     if 'REPLICATE_API_TOKEN' in st.secrets:
-        #st.success('API token loaded!', icon='✅')
+        st.success('API token loaded!', icon='✅')
         replicate_api = st.secrets['REPLICATE_API_TOKEN']
     
     #else:
