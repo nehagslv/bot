@@ -50,7 +50,7 @@ def process_text(text):
         if query:
             docs = knowledgeBase.similarity_search(query)
   
-Next, we initialize the L.L.M.S. (Large Language Model as a Service) using OpenAI's GPT-3.5 model. We then load the question-answering chain using load_qa_chain from Langchain, specifying the L.L.M.S. instance and the chain type as 'stuff.'Before running the chain, we define a context manager using get_openai_callback to keep track of the cost incurred by the OpenAI API. Finally, we display the response to the user in the Streamlit app
+#Next, we initialize the L.L.M.S. (Large Language Model as a Service) using OpenAI's GPT-3.5 model. We then load the question-answering chain using load_qa_chain from Langchain, specifying the L.L.M.S. instance and the chain type as 'stuff.'Before running the chain, we define a context manager using get_openai_callback to keep track of the cost incurred by the OpenAI API. Finally, we display the response to the user in the Streamlit app
 
             llm = OpenAI()
             chain = load_qa_chain(llm, chain_type='stuff')
