@@ -16,12 +16,7 @@ with st.sidebar:
         #st.success('API token loaded!', icon='✅')
         replicate_api = st.secrets['REPLICATE_API_TOKEN']
     else:
-        replicate_api = st.text_input('Enter Replicate API token:', type='password')
-        if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
-            st.warning('Please enter your Replicate API token.', icon='⚠️')
-            st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
-        #else:
-        #    st.success('API token loaded!', icon='✅')
+        st.success('API token loaded!', icon='✅')
 
     os.environ['REPLICATE_API_TOKEN'] = replicate_api
     st.subheader("Adjust model parameters")
