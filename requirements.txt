@@ -1,5 +1,6 @@
 langchain
 torch
+deepspeed
 accelerate
 sentence_transformers
 streamlit_chat
