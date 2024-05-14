@@ -24,7 +24,7 @@ if uploaded_file is not None:
         text = uploaded_file.getvalue().decode("utf-8")
     
     st.write("### Uploaded File Content:")
-    st.write(text)
+    
 
     # Query input
     query = st.text_input("Enter your query:", "")
