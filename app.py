@@ -8,7 +8,7 @@ def chatbot(input_text):
     return response
 
 # Streamlit UI
-st.title("Chatbot with File Upload")
+st.title("Document Parser")
 
 # File uploader
 uploaded_file = st.file_uploader("Upload a PDF or text file", type=["pdf", "txt"])
