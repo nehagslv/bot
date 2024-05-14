@@ -74,10 +74,15 @@ def main():
             separator="\n", chunk_size=1000, chunk_overlap=100, length_function=len)
         text_chunks = text_splitter.split_documents(text)
 
+        # Debug output to check input data
+        st.write("Number of text chunks:", len(text_chunks))
+        st.write("Example text chunk:", text_chunks[0] if text_chunks else "No text chunks")
+
         embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-MiniLM-L6-v2", model_kwargs={'device': 'cpu'})
+
         vector_store = None
-        if text_chunks and len(text_chunks) > 0:
+        if text_chunks:
             try:
                 vector_store = FAISS.from_documents(text_chunks, embedding=embeddings)
             except Exception as e:
