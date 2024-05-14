@@ -18,7 +18,6 @@ if uploaded_file is not None:
 
     # Display the document content
     st.write("### Document Content:")
-    st.write(document_text)
 
     # Perform a query using Snowflake Arctic model
     query = f"SELECT * FROM your_table WHERE document_text LIKE '%{search_term}%'"
