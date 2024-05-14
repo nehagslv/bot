@@ -76,7 +76,17 @@ def main():
 
         embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-MiniLM-L6-v2", model_kwargs={'device': 'cpu'})
-        vector_store = FAISS.from_documents(text_chunks, embedding=embeddings)
+        vector_store = None
+        if text_chunks and len(text_chunks) > 0:
+            try:
+                vector_store = FAISS.from_documents(text_chunks, embedding=embeddings)
+            except Exception as e:
+                st.error(f"Error creating FAISS vector store: {e}")
+                st.stop()
+
+        if vector_store is None:
+            st.error("Failed to create FAISS vector store. Aborting.")
+            st.stop()
 
         chain = create_conversational_chain(vector_store)
         display_chat_history(chain)
