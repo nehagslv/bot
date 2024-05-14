@@ -18,7 +18,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers import LlamaForCausalLM, LlamaTokenizer
 from deepspeed.linear.config import QuantizationConfig
 import tempfile
-
+import replicate
 
 
 load_dotenv()
