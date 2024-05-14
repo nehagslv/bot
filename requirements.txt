@@ -16,3 +16,4 @@ snowflake-connector-python
 pypdf4
 requests
 replicate
+spacy
