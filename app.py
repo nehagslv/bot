@@ -15,7 +15,7 @@ with st.sidebar:
     if 'REPLICATE_API_TOKEN' in st.secrets:
         st.success('API token loaded_if!', icon='✅')
         replicate_api = st.secrets['REPLICATE_API_TOKEN']
-        os.environ['REPLICATE_API_TOKEN'] = replicate_api
+        os.environ['REPLICATE_API_TOKEN'] = "replicate/llama-7b:ac808388e2e9d8ed35a5bf2eaa7d83f0ad53f9e3df31a42e4eb0a0c3249b3165"
     
     else:
         st.success('API token loaded_else!', icon='✅')
