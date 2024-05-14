@@ -1,5 +1,5 @@
 import streamlit as st
-from PyPDF2 import PdfFileReader
+from PyMuPDF import PdfFileReader
 
 # Define your chatbot function
 def chatbot(input_text):
