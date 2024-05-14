@@ -14,4 +14,4 @@ replicate
 docx2txt
 snowflake-connector-python 
 pypdf4
-
+requests
