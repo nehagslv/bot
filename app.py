@@ -86,7 +86,6 @@ def main():
     uploaded_files = st.sidebar.file_uploader("Upload files", accept_multiple_files=True)
 
     replicate_api_token = os.getenv("REPLICATE_API_TOKEN")  # Load Replicate API token from environment variables
-    print("Replicate API Token:", replicate_api_token)  # Print out the value of replicate_api_token for debugging
 
     vector_store = None  # Define vector_store variable outside the if block
 
@@ -98,6 +97,7 @@ def main():
         chain = create_conversational_chain(vector_store, replicate_api_token=replicate_api_token)
 
         display_chat_history(chain)
+
 
 
 if __name__ == "__main__":
