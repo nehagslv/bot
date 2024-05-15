@@ -56,46 +56,34 @@ def display_chat_history(chain):
                 message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="thumbs")
                 message(st.session_state["generated"][i], key=str(i), avatar_style="fun-emoji")
 
-def create_conversational_chain(vector_store):
+def create_conversational_chain(vector_store, replicate_api_token):
     load_dotenv()
-    # Create llm
-    #llm = CTransformers(model="llama-2-7b-chat.ggmlv3.q4_0.bin",
-                        #streaming=True, 
-                        #callbacks=[StreamingStdOutCallbackHandler()],
-                        #model_type="llama", config={'max_new_tokens': 500, 'temperature': 0.01})
     llm = Replicate(
-        streaming = True,
-        model = "replicate/llama-7b:ac808388e2e9d8ed35a5bf2eaa7d83f0ad53f9e3df31a42e4eb0a0c3249b3165",
-        #model = "replicate/llama-2-70b-chat:58d078176e02c219e11eb4da5a02a7830a283b14cf8f94537af893ccff5ee781", 
+        streaming=True,
+        model="replicate/llama-7b:ac808388e2e9d8ed35a5bf2eaa7d83f0ad53f9e3df31a42e4eb0a0c3249b3165",
         callbacks=[StreamingStdOutCallbackHandler()],
-        input = {"temperature": 0.01, "max_length" :500,"top_p":1})
-    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-
-    chain = ConversationalRetrievalChain.from_llm(llm=llm, chain_type='stuff',
-                                                 retriever=vector_store.as_retriever(search_kwargs={"k": 2}),
-                                                 memory=memory)
+        input={"temperature": 0.01, "max_length": 500, "top_p": 1}
+    )
+    # Additional logic for creating the conversational chain
     return chain
+
 
 def main():
     load_dotenv()
-    # Initialize session state
     initialize_session_state()
     st.title("Multi-Docs ChatBot using llama2 :books:")
-    # Initialize Streamlit
     st.sidebar.title("Document Processing")
     uploaded_files = st.sidebar.file_uploader("Upload files", accept_multiple_files=True)
 
-    replicate_api_token = os.getenv("REPLICATE_API_TOKEN")  # Load Replicate API token from environment variables
+    replicate_api_token = os.getenv("REPLICATE_API_TOKEN")
 
-    vector_store = None  # Define vector_store variable outside the if block
+    vector_store = None
 
     if uploaded_files:
-        # Your existing code for processing files here
+        # File processing logic to populate vector_store
 
-    #if vector_store is not None:  # Check if vector_store has been defined
-        # Create the chain object with the Replicate API token passed as a parameter
+    if vector_store is not None:
         chain = create_conversational_chain(vector_store, replicate_api_token=replicate_api_token)
-
         display_chat_history(chain)
 
 
