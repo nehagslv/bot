@@ -85,42 +85,20 @@ def main():
     st.sidebar.title("Document Processing")
     uploaded_files = st.sidebar.file_uploader("Upload files", accept_multiple_files=True)
 
+    replicate_api_token = os.getenv("REPLICATE_API_TOKEN")  # Load Replicate API token from environment variables
+    print("Replicate API Token:", replicate_api_token)  # Print out the value of replicate_api_token for debugging
+
+    vector_store = None  # Define vector_store variable outside the if block
 
     if uploaded_files:
-        text = []
-        for file in uploaded_files:
-            file_extension = os.path.splitext(file.name)[1]
-            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-                temp_file.write(file.read())
-                temp_file_path = temp_file.name
+        # Your existing code for processing files here
 
-            loader = None
-            if file_extension == ".pdf":
-                loader = PyPDFLoader(temp_file_path)
-            elif file_extension == ".docx" or file_extension == ".doc":
-                loader = Docx2txtLoader(temp_file_path)
-            elif file_extension == ".txt":
-                loader = TextLoader(temp_file_path)
+    if vector_store is not None:  # Check if vector_store has been defined
+        # Create the chain object with the Replicate API token passed as a parameter
+        chain = create_conversational_chain(vector_store, replicate_api_token=replicate_api_token)
 
-            if loader:
-                text.extend(loader.load())
-                os.remove(temp_file_path)
-
-        text_splitter = CharacterTextSplitter(separator="\n", chunk_size=1000, chunk_overlap=100, length_function=len)
-        text_chunks = text_splitter.split_documents(text)
-
-        # Create embeddings
-        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2", 
-                                           model_kwargs={'device': 'cpu'})
-
-        # Create vector store
-        vector_store = FAISS.from_documents(text_chunks, embedding=embeddings)
-
-        # Create the chain object
-        chain = create_conversational_chain(vector_store)
-
-        
         display_chat_history(chain)
+
 
 if __name__ == "__main__":
     main()
