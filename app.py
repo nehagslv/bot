@@ -92,7 +92,7 @@ def main():
     if uploaded_files:
         # Your existing code for processing files here
 
-    if vector_store is not None:  # Check if vector_store has been defined
+    #if vector_store is not None:  # Check if vector_store has been defined
         # Create the chain object with the Replicate API token passed as a parameter
         chain = create_conversational_chain(vector_store, replicate_api_token=replicate_api_token)
 
