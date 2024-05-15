@@ -1,123 +1,97 @@
 import streamlit as st
-from streamlit_chat import message
-from langchain.chains import ConversationalRetrievalChain
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.llms import CTransformers
-from langchain.llms import Replicate
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.vectorstores import FAISS
-from langchain.memory import ConversationBufferMemory
-from langchain.document_loaders import PyPDFLoader
-from langchain.document_loaders import TextLoader
-from langchain.document_loaders import Docx2txtLoader
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-import os
-from dotenv import load_dotenv
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from transformers import AutoModelForCausalLM
-from transformers import LlamaForCausalLM, LlamaTokenizer
-from deepspeed.linear.config import QuantizationConfig
-import tempfile
 import replicate
+import os
+from transformers import AutoTokenizer
 
-load_dotenv()
-def initialize_session_state():
-    if 'history' not in st.session_state:
-        st.session_state['history'] = []
+# Set assistant icon to Snowflake logo
+icons = {"assistant": "./Snowflake_Logomark_blue.svg", "user": "⛷️"}
 
-    if 'generated' not in st.session_state:
-        st.session_state['generated'] = ["Hello! Ask me anything about 🤗"]
+# App title
+st.set_page_config(page_title="Snowflake Arctic")
 
-    if 'past' not in st.session_state:
-        st.session_state['past'] = ["Hey! 👋"]
+# Replicate Credentials
+with st.sidebar:
+    st.title('Snowflake Arctic')
+    if 'REPLICATE_API_TOKEN' in st.secrets:
+        #st.success('API token loaded!', icon='✅')
+        replicate_api = st.secrets['REPLICATE_API_TOKEN']
+    else:
+        replicate_api = st.text_input('Enter Replicate API token:', type='password')
+        if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
+            st.warning('Please enter your Replicate API token.', icon='⚠️')
+            st.markdown("**Don't have an API token?** Head over to [Replicate](https://replicate.com) to sign up for one.")
+        #else:
+        #    st.success('API token loaded!', icon='✅')
 
-def conversation_chat(query, chain, history):
-    result = chain({"question": query, "chat_history": history})
-    history.append((query, result["answer"]))
-    return result["answer"]
+    os.environ['REPLICATE_API_TOKEN'] = replicate_api
+    st.subheader("Adjust model parameters")
+    temperature = st.sidebar.slider('temperature', min_value=0.01, max_value=5.0, value=0.3, step=0.01)
+    top_p = st.sidebar.slider('top_p', min_value=0.01, max_value=1.0, value=0.9, step=0.01)
 
-def display_chat_history(chain):
-    reply_container = st.container()
-    container = st.container()
+# Store LLM-generated responses
+if "messages" not in st.session_state.keys():
+    st.session_state.messages = [{"role": "assistant", "content": "Hi. I'm Arctic, a new, efficient, intelligent, and truly open language model created by Snowflake AI Research. Ask me anything."}]
 
-    with container:
-        with st.form(key='my_form', clear_on_submit=True):
-            user_input = st.text_input("Question:", placeholder="Ask about your Documents", key='input')
-            submit_button = st.form_submit_button(label='Send')
+# Display or clear chat messages
+for message in st.session_state.messages:
+    with st.chat_message(message["role"], avatar=icons[message["role"]]):
+        st.write(message["content"])
 
-        if submit_button and user_input:
-            with st.spinner('Generating response...'):
-                output = conversation_chat(user_input, chain, st.session_state['history'])
+def clear_chat_history():
+    st.session_state.messages = [{"role": "assistant", "content": "Hi. I'm Arctic, a new, efficient, intelligent, and truly open language model created by Snowflake AI Research. Ask me anything."}]
+st.sidebar.button('Clear chat history', on_click=clear_chat_history)
 
-            st.session_state['past'].append(user_input)
-            st.session_state['generated'].append(output)
+st.sidebar.caption('Built by [Snowflake](https://snowflake.com/) to demonstrate [Snowflake Arctic](https://www.snowflake.com/blog/arctic-open-and-efficient-foundation-language-models-snowflake). App hosted on [Streamlit Community Cloud](https://streamlit.io/cloud). Model hosted by [Replicate](https://replicate.com/snowflake/snowflake-arctic-instruct).')
 
-    if st.session_state['generated']:
-        with reply_container:
-            for i in range(len(st.session_state['generated'])):
-                message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="thumbs")
-                message(st.session_state["generated"][i], key=str(i), avatar_style="fun-emoji")
+@st.cache_resource(show_spinner=False)
+def get_tokenizer():
+    """Get a tokenizer to make sure we're not sending too much text
+    text to the Model. Eventually we will replace this with ArcticTokenizer
+    """
+    return AutoTokenizer.from_pretrained("huggyllama/llama-7b")
 
-def create_conversational_chain(vector_store):
-    load_dotenv()
-    tokenizer = AutoTokenizer.from_pretrained(
-    "Snowflake/snowflake-arctic-instruct",
-    trust_remote_code=True
-)
-    quant_config = QuantizationConfig(q_bits=8)
+def get_num_tokens(prompt):
+    """Get the number of tokens in a given prompt"""
+    tokenizer = get_tokenizer()
+    tokens = tokenizer.tokenize(prompt)
+    return len(tokens)
 
-    model = AutoModelForCausalLM.from_pretrained(
-      "Snowflake/snowflake-arctic-instruct", trust_remote_code=True, low_cpu_mem_usage=True, device_map="auto",
-      ds_quantization_config=quant_config,
-      max_memory={i: "150GiB" for i in range(8)},
-      torch_dtype=torch.bfloat16)
+# Function for generating Snowflake Arctic response
+def generate_arctic_response():
+    prompt = []
+    for dict_message in st.session_state.messages:
+        if dict_message["role"] == "user":
+            prompt.append("<|im_start|>user\n" + dict_message["content"] + "<|im_end|>")
+        else:
+            prompt.append("<|im_start|>assistant\n" + dict_message["content"] + "<|im_end|>")
+    
+    prompt.append("<|im_start|>assistant")
+    prompt.append("")
+    prompt_str = "\n".join(prompt)
+    
+    if get_num_tokens(prompt_str) >= 3072:
+        st.error("Conversation length too long. Please keep it under 3072 tokens.")
+        st.button('Clear chat history', on_click=clear_chat_history, key="clear_chat_history")
+        st.stop()
 
-def main():
-    load_dotenv()
-    # Initialize session state
-    initialize_session_state()
-    st.title("Multi-Docs ChatBot using llama2 :books:")
-    # Initialize Streamlit
-    st.sidebar.title("Document Processing")
-    uploaded_files = st.sidebar.file_uploader("Upload files", accept_multiple_files=True)
+    for event in replicate.stream("snowflake/snowflake-arctic-instruct",
+                           input={"prompt": prompt_str,
+                                  "prompt_template": r"{prompt}",
+                                  "temperature": temperature,
+                                  "top_p": top_p,
+                                  }):
+        yield str(event)
 
+# User-provided prompt
+if prompt := st.chat_input(disabled=not replicate_api):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user", avatar="⛷️"):
+        st.write(prompt)
 
-    if uploaded_files:
-        text = []
-        for file in uploaded_files:
-            file_extension = os.path.splitext(file.name)[1]
-            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-                temp_file.write(file.read())
-                temp_file_path = temp_file.name
-
-            loader = None
-            if file_extension == ".pdf":
-                loader = PyPDFLoader(temp_file_path)
-            elif file_extension == ".docx" or file_extension == ".doc":
-                loader = Docx2txtLoader(temp_file_path)
-            elif file_extension == ".txt":
-                loader = TextLoader(temp_file_path)
-
-            if loader:
-                text.extend(loader.load())
-                os.remove(temp_file_path)
-
-        text_splitter = CharacterTextSplitter(separator="\n", chunk_size=1000, chunk_overlap=100, length_function=len)
-        text_chunks = text_splitter.split_documents(text)
-
-        # Create embeddings
-        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2", 
-                                           model_kwargs={'device': 'cpu'})
-
-        # Create vector store
-        vector_store = FAISS.from_documents(text_chunks, embedding=embeddings)
-
-        # Create the chain object
-        chain = create_conversational_chain(vector_store)
-
-        
-        display_chat_history(chain)
-
-if __name__ == "__main__":
-    main()
+# Generate a new response if last message is not from assistant
+if st.session_state.messages[-1]["role"] != "assistant":
+    with st.chat_message("assistant", avatar="./Snowflake_Logomark_blue.svg"):
+        response = generate_arctic_response()
+        full_response = st.write_stream(response)
+    message = {"role": "assistant", "content": full_response}
+    st.session_state.messages.append(message)
